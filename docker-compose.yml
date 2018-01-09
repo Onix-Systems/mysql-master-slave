@@ -17,9 +17,12 @@ services:
       - MYSQL_DATABASE=${MYSQL_DATABASE:-test}
       - MYSQL_USER=${MYSQL_USER:-user}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-user}
+      - CUSTOM_CONF_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl
+      - CUSTOM_CONF=/etc/mysql/conf.d/custom.cnf
     volumes:
-      - "./conf.d/master.cnf:/etc/mysql/conf.d/custom.cnf:ro"
+      - "./conf.d/master.cnf.tmpl:/etc/mysql/conf.d/custom.cnf.tmpl:ro"
       - "./db_scheme.sql:/docker-entrypoint-initdb.d/db_scheme.sql:ro"
+      - "./scripts/master.sh:/docker-entrypoint-initdb.d/00-master.sh:ro"
       - "${DATA_FOLDER:-./data}/master/data:/var/lib/mysql"
       - "${DATA_FOLDER:-./data}/master/log:/var/log/mysql"
     restart: unless-stopped
@@ -36,10 +39,14 @@ services:
       dockerfile: "Dockerfile.mysql"
     depends_on:
       - master
+    links:
+      - master
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-test}
+      - MASTER_DB_HOST=master
       - SLAVE_USER=${SLAVE_USER:-slave_user}
-      - SLAVE_PASSWORD=${SLAVE_PASSWORD:-slave_password}
+      - SLAVE_USER_PASSWORD=${SLAVE_PASSWORD:-slave_password}
     volumes:
       - "./conf.d/slave.cnf:/etc/mysql/conf.d/custom.cnf:ro"
       - "./scripts/slave.sh:/docker-entrypoint-initdb.d/00-slave.sh:ro"
@@ -77,6 +84,6 @@ services:
     ports:
       - 8080:80
     environment:
-      - PMA_HOST=slave
+      - PMA_HOSTS=master,slave
       - PMA_USER=root
       - PMA_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}

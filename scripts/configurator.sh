@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 [ -z "${DATA_FOLDER}" ] && DATA_FOLDER=/data
 [ -z "${MYSQL_USER}" ] && MYSQL_USER=mysql
 
