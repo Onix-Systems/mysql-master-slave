@@ -1,0 +1,37 @@
+#
+# MAINTAINER: devops@onix-systems.com
+#
+# This docker-compose helps to run MySQL master/slave replication architecture
+#
+
+version: "3"
+services:
+
+  mysql_master:
+    hostname: "master"
+    image: "mysql:8"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-test}
+      - MYSQL_USER=${MYSQL_USER:-user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-user}
+    volumes:
+      - "${DATA_FOLDER:-./data}/db:/var/lib/mysql"
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10M"
+        max-file: "5"
+
+  phpmyadmin:
+    hostname: "phpmyadmin"
+    image: phpmyadmin/phpmyadmin
+    links:
+      - mysql_master:master
+    ports:
+      - 8080:80
+    environment:
+      - PMA_HOST=master
+      - PMA_USER=root
+      - PMA_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
