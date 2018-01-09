@@ -7,15 +7,18 @@
 version: "3"
 services:
 
-  mysql_master:
+  master:
     hostname: "master"
-    image: "mysql:8"
+    build:
+      context: ./
+      dockerfile: "Dockerfile.mysql"
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      - MYSQL_ROOT_PASSWORD=${MASTER_ROOT_PASSWORD:-password}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-test}
       - MYSQL_USER=${MYSQL_USER:-user}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-user}
     volumes:
+      - "./initdb.d:/docker-entrypoint-initdb.d:ro"
       - "${DATA_FOLDER:-./data}/db:/var/lib/mysql"
     restart: unless-stopped
     logging:
@@ -28,10 +31,10 @@ services:
     hostname: "phpmyadmin"
     image: phpmyadmin/phpmyadmin
     links:
-      - mysql_master:master
+      - master
     ports:
       - 8080:80
     environment:
-      - PMA_HOST=master
+      - PMA_HOSTS=master,
       - PMA_USER=root
       - PMA_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
