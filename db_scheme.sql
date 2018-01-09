@@ -30,5 +30,3 @@ INSERT INTO `tbl_table2` (comment) VALUES ('aaaaaaaaaaaa');
 INSERT INTO `tbl_users` (login,pass,comment) VALUES ('user1','password1','test user');
 INSERT INTO `tbl_users` (login,pass,comment) VALUES ('user2','password2','test user');
 INSERT INTO `tbl_users` (login,pass,comment) VALUES ('user3','password3','test user');
-
--- Replication settings

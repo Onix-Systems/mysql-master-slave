@@ -13,13 +13,15 @@ services:
       context: ./
       dockerfile: "Dockerfile.mysql"
     environment:
-      - MYSQL_ROOT_PASSWORD=${MASTER_ROOT_PASSWORD:-password}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-test}
       - MYSQL_USER=${MYSQL_USER:-user}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-user}
     volumes:
-      - "./initdb.d:/docker-entrypoint-initdb.d:ro"
-      - "${DATA_FOLDER:-./data}/db:/var/lib/mysql"
+      - "./conf.d/master.cnf:/etc/mysql/conf.d/custom.cnf:ro"
+      - "./db_scheme.sql:/docker-entrypoint-initdb.d/db_scheme.sql:ro"
+      - "${DATA_FOLDER:-./data}/master/data:/var/lib/mysql"
+      - "${DATA_FOLDER:-./data}/master/log:/var/log/mysql"
     restart: unless-stopped
     logging:
       driver: "json-file"
@@ -27,14 +29,54 @@ services:
         max-size: "10M"
         max-file: "5"
 
+  slave:
+    hostname: "slave"
+    build:
+      context: ./
+      dockerfile: "Dockerfile.mysql"
+    depends_on:
+      - master
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      - SLAVE_USER=${SLAVE_USER:-slave_user}
+      - SLAVE_PASSWORD=${SLAVE_PASSWORD:-slave_password}
+    volumes:
+      - "./conf.d/slave.cnf:/etc/mysql/conf.d/custom.cnf:ro"
+      - "./scripts/slave.sh:/docker-entrypoint-initdb.d/00-slave.sh:ro"
+      - "${DATA_FOLDER:-./data}/slave/data:/var/lib/mysql"
+      - "${DATA_FOLDER:-./data}/slave/log:/var/log/mysql"
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10M"
+        max-file: "5"
+
+  configurator:
+    hostname: "configurator"
+    build:
+      context: ./
+      dockerfile: "Dockerfile.mysql"
+    command: /configurator.sh
+    depends_on:
+      - master
+      - slave
+    environment:
+      - MYSQL_USER=mysql
+      - DATA_FOLDER=/data
+    volumes:
+      - "./scripts/configurator.sh:/configurator.sh:ro"
+      - "${DATA_FOLDER:-./data}:/data"
+
   phpmyadmin:
     hostname: "phpmyadmin"
     image: phpmyadmin/phpmyadmin
     links:
       - master
+      - slave
     ports:
       - 8080:80
     environment:
-      - PMA_HOSTS=master,
+      - PMA_HOST=slave
       - PMA_USER=root
       - PMA_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
