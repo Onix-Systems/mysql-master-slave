@@ -49,7 +49,6 @@ services:
       - SLAVE_USER_PASSWORD=${SLAVE_PASSWORD:-slave_password}
       - CUSTOM_CONF_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl
       - CUSTOM_CONF=/etc/mysql/conf.d/01-custom.cnf
-      - TERM=xterm
     volumes:
       - "./conf.d/slave.cnf.tmpl:/etc/mysql/conf.d/custom.cnf.tmpl:ro"
       - "./conf.d/00-slave.cnf:/etc/mysql/conf.d/00-custom.cnf:ro"

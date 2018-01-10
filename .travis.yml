@@ -10,4 +10,4 @@
     - docker-compose build
   script:
     - docker-compose up -d
-    - docker-compose exec slave /tests/run.sh
+    - docker exec --tty -e TERM=xterm $(docker-compose ps -q slave) /tests/run.sh
