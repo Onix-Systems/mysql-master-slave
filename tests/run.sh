@@ -3,10 +3,6 @@
 MAX_WAIT_TIMEOUT=120
 SOURCE_FOLDER=/bash_unit
 
-red='\033[0;31m'
-green='\033[0;32m'
-neutral='\033[0m'
-
 cd $(dirname $0)
 
 printf "Waiting for MySQL on localhost will be ready"
