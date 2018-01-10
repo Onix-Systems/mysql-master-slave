@@ -32,7 +32,8 @@ Tests items:
 * Instert new record in previously created table
 * Drop table on master server
 
-All these actions sequentally will be checked on slave server in 1 second after execution.
+All these actions sequentally will be checked on slave server in 1 second after
+execution query on master.
 
 To launch unit tests for testing MySQL master/slave configuration, please execute:
 
