@@ -3,7 +3,9 @@
 MAX_WAIT_TIMEOUT=120
 SOURCE_FOLDER=/bash_unit
 
-export TERM=xterm
+red='\033[0;31m'
+green='\033[0;32m'
+neutral='\033[0m'
 
 cd $(dirname $0)
 
