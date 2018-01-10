@@ -7,6 +7,34 @@
 version: "3"
 services:
 
+  proxy:
+    hostname: "proxy"
+    build:
+      context: ./
+      dockerfile: "Dockerfile.proxysql"
+    links:
+      - master
+      - slave
+    ports:
+      - "${ADMIN_BIND_ADDRESS:-6032}:6032"
+      - "${PROXY_BIND_ADDRESS:-6033}:6033"
+    environment:
+      - MASTER_DB_HOST=master
+      - SLAVE_DB_HOST=slave
+      - CONFIG_FILE=/etc/proxysql.cnf
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      - MONITOR_USERNAME=${MONITOR_USERNAME:-monitor}
+      - MONITOR_PASSWORD=${MONITOR_PASSWORD:-monitor}
+    volumes:
+      - ./conf.d/proxysql.cnf:/etc/proxysql.cnf:ro
+      - ./scripts/proxysql.sh:/entrypoint.sh:ro
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10M"
+        max-file: "5"
+
   master:
     hostname: "master"
     build:
@@ -19,10 +47,13 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-user}
       - CUSTOM_CONF_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl
       - CUSTOM_CONF=/etc/mysql/conf.d/custom.cnf
+      - MONITOR_USERNAME=${MONITOR_USERNAME:-monitor}
+      - MONITOR_PASSWORD=${MONITOR_PASSWORD:-monitor}
     volumes:
       - "./conf.d/master.cnf.tmpl:/etc/mysql/conf.d/custom.cnf.tmpl:ro"
       - "./db_scheme.sql:/docker-entrypoint-initdb.d/db_scheme.sql:ro"
       - "./scripts/master.sh:/docker-entrypoint-initdb.d/00-master.sh:ro"
+      - "./scripts/monitor.sh:/docker-entrypoint-initdb.d/01-monitor.sh:ro"
       - "${DATA_FOLDER:-./data}/master/data:/var/lib/mysql"
       - "${DATA_FOLDER:-./data}/master/log:/var/log/mysql"
     restart: unless-stopped
@@ -49,10 +80,13 @@ services:
       - SLAVE_USER_PASSWORD=${SLAVE_PASSWORD:-slave_password}
       - CUSTOM_CONF_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl
       - CUSTOM_CONF=/etc/mysql/conf.d/01-custom.cnf
+      - MONITOR_USERNAME=${MONITOR_USERNAME:-monitor}
+      - MONITOR_PASSWORD=${MONITOR_PASSWORD:-monitor}
     volumes:
       - "./conf.d/slave.cnf.tmpl:/etc/mysql/conf.d/custom.cnf.tmpl:ro"
       - "./conf.d/00-slave.cnf:/etc/mysql/conf.d/00-custom.cnf:ro"
       - "./scripts/slave.sh:/docker-entrypoint-initdb.d/00-slave.sh:ro"
+      - "./scripts/monitor.sh:/docker-entrypoint-initdb.d/01-monitor.sh:ro"
       - "${DATA_FOLDER:-./data}/slave/data:/var/lib/mysql"
       - "${DATA_FOLDER:-./data}/slave/log:/var/log/mysql"
       - ./tests:/tests

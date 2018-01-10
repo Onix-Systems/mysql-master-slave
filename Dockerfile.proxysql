@@ -1,0 +1,18 @@
+FROM debian:stretch
+
+LABEL maintainer="devops@onix-systems.com"
+
+#
+# http://www.proxysql.com/
+# https://github.com/sysown/proxysql/wiki
+
+RUN apt-get update && \
+    apt-get install -y \
+        mysql-client \
+        wget && \
+    wget -q -O /tmp/proxysql.deb https://github.com/sysown/proxysql/releases/download/v1.4.4/proxysql_1.4.4-debian9_amd64.deb && \
+    dpkg -i /tmp/proxysql.deb && \
+    apt-get clean
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["proxysql", "-c", "/etc/proxysql.cnf", "-f"]
