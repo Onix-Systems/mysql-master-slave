@@ -48,9 +48,10 @@ services:
       - SLAVE_USER=${SLAVE_USER:-slave_user}
       - SLAVE_USER_PASSWORD=${SLAVE_PASSWORD:-slave_password}
       - CUSTOM_CONF_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl
-      - CUSTOM_CONF=/etc/mysql/conf.d/custom.cnf
+      - CUSTOM_CONF=/etc/mysql/conf.d/01-custom.cnf
     volumes:
       - "./conf.d/slave.cnf.tmpl:/etc/mysql/conf.d/custom.cnf.tmpl:ro"
+      - "./conf.d/00-slave.cnf:/etc/mysql/conf.d/00-custom.cnf:ro"
       - "./scripts/slave.sh:/docker-entrypoint-initdb.d/00-slave.sh:ro"
       - "${DATA_FOLDER:-./data}/slave/data:/var/lib/mysql"
       - "${DATA_FOLDER:-./data}/slave/log:/var/log/mysql"
@@ -72,7 +73,8 @@ services:
       - slave
     environment:
       - MYSQL_USER=mysql
-      - DATA_FOLDER=/data
+      - MASTER_DATA_FOLDER=/data/master
+      - SLAVE_DATA_FOLDER=/data/slave
     volumes:
       - "./scripts/configurator.sh:/configurator.sh:ro"
       - "${DATA_FOLDER:-./data}:/data"
