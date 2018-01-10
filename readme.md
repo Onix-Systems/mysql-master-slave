@@ -26,12 +26,6 @@ phpmyadmin is accessible by url: http://localhost:8080/
 
 ### Running tests
 
-To launch unit tests for testing MySQL master/slave configuration, please execute:
-
-```
-$ docker-compose exec slave /tests/run.sh
-```
-
 Tests items:
 
 * Creating test table on master servers
@@ -39,3 +33,19 @@ Tests items:
 * Drop table on master server
 
 All these actions sequentally will be checked on slave server in 1 second after execution.
+
+To launch unit tests for testing MySQL master/slave configuration, please execute:
+
+```
+$ docker-compose exec slave /tests/run.sh
+...
+Waiting for MySQL on localhost will be ready. Ready for testing.
+Checking all requirements for running tests against this project.
+Running tests
+Running tests in tests.sh
+Checking environment. Done.
+Running test_00_replication_create_table... SUCCESS
+Running test_01_replication_insert... SUCCESS
+Running test_02_replication_drop_table... SUCCESS
+...
+```
