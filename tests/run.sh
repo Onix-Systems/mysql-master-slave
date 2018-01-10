@@ -41,6 +41,7 @@ git clone https://github.com/pgrange/bash_unit.git ${SOURCE_FOLDER}
 ln -s ${SOURCE_FOLDER}/bash_unit /usr/sbin/bash_unit
 fi
 
+echo
 echo "Running tests"
-
+echo
 bash_unit tests.sh
