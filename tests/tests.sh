@@ -36,7 +36,13 @@ test_00_replication_create_table() {
     assert_equals "${MYSQL_TEST_TABLE}" "${STDOUT}" "Can not be found ${MYSQL_TEST_TABLE} on slave."
 }
 
-test_01_replication_insert() {
+test_01_replication_compare_tables_names() {
+    MASTER_TABLES_LIST=$(mysql -sN -h${MASTER_DB_HOST} ${MYSQL_DATABASE} -e "show tables;" | tr "\n" ",")
+    SLAVE_TABLES_LIST=$(mysql -sN -h${SLAVE_DB_HOST} ${MYSQL_DATABASE} -e "show tables;" | tr "\n" ",")
+    assert_equals "${MASTER_TABLES_LIST}" "${SLAVE_TABLES_LIST}" "Lists of tables are not equal on master and slave servers."
+}
+
+test_02_replication_insert() {
     MESSAGE_VALUE=$(date)
     INSERT_QUERY="INSERT INTO ${MYSQL_TEST_TABLE} (message) VALUES ('${MESSAGE_VALUE}');"
     STDOUT=$(mysql -h${MASTER_DB_HOST} ${MYSQL_DATABASE} -e "${INSERT_QUERY}")
@@ -48,7 +54,7 @@ test_01_replication_insert() {
     assert_equals "1" "${STDOUT}" "Value '${MESSAGE_VALUE}' can not be found on slave."
 }
 
-test_02_replication_drop_table() {
+test_03_replication_drop_table() {
     STDOUT=$(mysql -h${MASTER_DB_HOST} ${MYSQL_DATABASE} -e "DROP TABLE \`${MYSQL_TEST_TABLE}\`;")
     RTRN=$?
     assert_equals 0 ${RTRN} "Error while deleting test table on master host."

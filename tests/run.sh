@@ -3,6 +3,8 @@
 MAX_WAIT_TIMEOUT=120
 SOURCE_FOLDER=/bash_unit
 
+export TERM=xterm
+
 cd $(dirname $0)
 
 printf "Waiting for MySQL on localhost will be ready"
