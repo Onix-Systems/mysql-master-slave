@@ -55,6 +55,7 @@ services:
       - "./scripts/slave.sh:/docker-entrypoint-initdb.d/00-slave.sh:ro"
       - "${DATA_FOLDER:-./data}/slave/data:/var/lib/mysql"
       - "${DATA_FOLDER:-./data}/slave/log:/var/log/mysql"
+      - ./tests:/tests
     restart: unless-stopped
     logging:
       driver: "json-file"
