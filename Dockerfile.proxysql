@@ -24,4 +24,4 @@ RUN apt-get update && \
     apt-get clean
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["proxysql", "-c", "${CONFIG_FILE}", "-f"]
+CMD ["proxysql", "-c", "/etc/proxysql.cnf", "-f"]
