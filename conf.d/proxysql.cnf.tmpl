@@ -3,8 +3,8 @@ datadir="/var/lib/proxysql"
 
 admin_variables=
 {
-	admin_credentials="admin:admin"
-	mysql_ifaces="0.0.0.0:6032"
+	admin_credentials="${ADMIN_USER}:${ADMIN_PASSWORD}"
+	mysql_ifaces="127.0.0.1:6032"
 }
 
 mysql_variables=
@@ -22,8 +22,8 @@ mysql_variables=
 	connect_timeout_server=3000
 	# make sure to configure monitor username and password
 	# https://github.com/sysown/proxysql/wiki/Global-variables#mysql-monitor_username-mysql-monitor_password
-	monitor_username="monitor"
-	monitor_password="monitor"
+	monitor_username="${MONITOR_USER}"
+	monitor_password="${MONITOR_PASSWORD}"
 	monitor_history=600000
 	monitor_connect_interval=60000
 	monitor_ping_interval=10000
@@ -41,14 +41,15 @@ mysql_variables=
 mysql_servers =
 (
 	{ address="master", port=3306, hostgroup=0	},
+	{ address="master", port=3306, hostgroup=1	},
 	{ address="slave", port=3306, hostgroup=1	}
 )
 
 mysql_users:
 (
  {
-	 username = "root"
-	 password = "password"
+	 username = "${MYSQL_USER}"
+	 password = "${MYSQL_PASSWORD}"
 	 default_hostgroup = 0
 	 max_connections=1000
 	 default_schema="information_schema"
@@ -61,13 +62,6 @@ mysql_query_rules:
 (
 	{
 		rule_id=1
-		active=1
-		match_pattern="^SELECT .* FOR UPDATE$"
-		destination_hostgroup=0
-		apply=1
-	},
-	{
-		rule_id=2
 		active=1
 		match_pattern="^SELECT"
 		destination_hostgroup=1

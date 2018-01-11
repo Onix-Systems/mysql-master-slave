@@ -2,16 +2,16 @@
 
 set -e
 
-if [ -z "${CUSTOM_CONF_TEMPLATE}" ] || [ -z "${CUSTOM_CONF}" ]; then
+if [ -z "${CONFIG_TEMPLATE}" ] || [ -z "${CONFIG_FILE}" ]; then
     echo "Not enough input parameters."
     exit 1
 fi
 
-if [ ! -e "${CUSTOM_CONF_TEMPLATE}" ]; then
+if [ ! -e "${CONFIG_TEMPLATE}" ]; then
     echo "Could not be found template for custom config."
     exit 1
 fi
 
 printf "Generating custom config from template. "
-cat ${CUSTOM_CONF_TEMPLATE} | envsubst > ${CUSTOM_CONF}
+cat ${CONFIG_TEMPLATE} | envsubst > ${CONFIG_FILE}
 echo "Done."

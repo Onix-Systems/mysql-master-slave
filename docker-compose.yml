@@ -16,17 +16,17 @@ services:
       - master
       - slave
     ports:
-      - "${ADMIN_BIND_ADDRESS:-6032}:6032"
       - "${PROXY_BIND_ADDRESS:-6033}:6033"
     environment:
       - MASTER_DB_HOST=master
       - SLAVE_DB_HOST=slave
       - CONFIG_FILE=/etc/proxysql.cnf
+      - CONFIG_FILE_TEMPLATE=/etc/proxysql.cnf.tmpl
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
-      - MONITOR_USERNAME=${MONITOR_USERNAME:-monitor}
+      - MONITOR_USER=${MONITOR_USERNAME:-monitor}
       - MONITOR_PASSWORD=${MONITOR_PASSWORD:-monitor}
     volumes:
-      - ./conf.d/proxysql.cnf:/etc/proxysql.cnf:ro
+      - ./conf.d/proxysql.cnf.tmpl:/etc/proxysql.cnf.tmpl:ro
       - ./scripts/proxysql.sh:/entrypoint.sh:ro
     restart: unless-stopped
     logging:
@@ -45,9 +45,9 @@ services:
       - MYSQL_DATABASE=${MYSQL_DATABASE:-test}
       - MYSQL_USER=${MYSQL_USER:-user}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-user}
-      - CUSTOM_CONF_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl
-      - CUSTOM_CONF=/etc/mysql/conf.d/custom.cnf
-      - MONITOR_USERNAME=${MONITOR_USERNAME:-monitor}
+      - CONFIG_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl
+      - CONFIG_FILE=/etc/mysql/conf.d/custom.cnf
+      - MONITOR_USER=${MONITOR_USER:-monitor}
       - MONITOR_PASSWORD=${MONITOR_PASSWORD:-monitor}
     volumes:
       - "./conf.d/master.cnf.tmpl:/etc/mysql/conf.d/custom.cnf.tmpl:ro"
@@ -78,8 +78,8 @@ services:
       - MASTER_DB_HOST=master
       - SLAVE_USER=${SLAVE_USER:-slave_user}
       - SLAVE_USER_PASSWORD=${SLAVE_PASSWORD:-slave_password}
-      - CUSTOM_CONF_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl
-      - CUSTOM_CONF=/etc/mysql/conf.d/01-custom.cnf
+      - CONFIG_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl
+      - CONFIG_FILE=/etc/mysql/conf.d/01-custom.cnf
       - MONITOR_USERNAME=${MONITOR_USERNAME:-monitor}
       - MONITOR_PASSWORD=${MONITOR_PASSWORD:-monitor}
     volumes:

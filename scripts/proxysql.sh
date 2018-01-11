@@ -1,11 +1,16 @@
-#!/bin/bash
+#!/bin/bash -e
 
 #
 # Entrypoint for running ProxySQL service
 #
 
-#
-# TODO: Refactore proxysql.cnf to template and replace credentials from global env
-#
+if [ ! -f "${CONFIG_FILE_TEMPLATE}" ]; then
+    echo "Config file template could not be found! Please check."
+    exit 1
+fi
+
+printf "Generating custom config from template. "
+cat ${CONFIG_TEMPLATE} | envsubst > ${CONFIG_FILE}
+echo "Done."
 
 exec $@
