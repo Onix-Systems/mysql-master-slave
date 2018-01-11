@@ -43,7 +43,7 @@ services:
       context: ./
       dockerfile: "Dockerfile.mysql"
     environment:
-      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-test}
       - MYSQL_USER=${MYSQL_USER:-user}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-user}
