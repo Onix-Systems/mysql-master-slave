@@ -10,7 +10,7 @@ if [ ! -f "${CONFIG_FILE_TEMPLATE}" ]; then
 fi
 
 printf "Generating custom config from template. "
-cat ${CONFIG_TEMPLATE} | envsubst > ${CONFIG_FILE}
+cat ${CONFIG_FILE_TEMPLATE} | envsubst > ${CONFIG_FILE}
 echo "Done."
 
 exec $@

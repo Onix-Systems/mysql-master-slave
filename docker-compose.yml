@@ -25,6 +25,8 @@ services:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
       - MONITOR_USER=${MONITOR_USERNAME:-monitor}
       - MONITOR_PASSWORD=${MONITOR_PASSWORD:-monitor}
+      - MYSQL_USER=${MYSQL_USER:-user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-user}
     volumes:
       - ./conf.d/proxysql.cnf.tmpl:/etc/proxysql.cnf.tmpl:ro
       - ./scripts/proxysql.sh:/entrypoint.sh:ro
@@ -41,11 +43,11 @@ services:
       context: ./
       dockerfile: "Dockerfile.mysql"
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-test}
       - MYSQL_USER=${MYSQL_USER:-user}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-user}
-      - CONFIG_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl
+      - CONFIG_FILE_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl
       - CONFIG_FILE=/etc/mysql/conf.d/custom.cnf
       - MONITOR_USER=${MONITOR_USER:-monitor}
       - MONITOR_PASSWORD=${MONITOR_PASSWORD:-monitor}
@@ -78,7 +80,7 @@ services:
       - MASTER_DB_HOST=master
       - SLAVE_USER=${SLAVE_USER:-slave_user}
       - SLAVE_USER_PASSWORD=${SLAVE_PASSWORD:-slave_password}
-      - CONFIG_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl
+      - CONFIG_FILE_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl
       - CONFIG_FILE=/etc/mysql/conf.d/01-custom.cnf
       - MONITOR_USERNAME=${MONITOR_USERNAME:-monitor}
       - MONITOR_PASSWORD=${MONITOR_PASSWORD:-monitor}
