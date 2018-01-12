@@ -46,7 +46,7 @@ Tests items:
 
 * Creating test table on master servers
 * Instert new record in previously created table
-* Testing SQL queries through the ProxySQL services (INSERT and SELECT)
+* Testing SQL queries through the ProxySQL service (INSERT and SELECT)
 * Drop test table on master server
 
 All these actions sequentally will be checked on slave server in 1 second after
