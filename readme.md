@@ -1,6 +1,6 @@
 ## MySQL master/slave example + using ProxySQL service as MySQL Balancer
 
-Build status: 
+Build status:
 
 [![Build Status](https://travis-ci.org/Onix-Systems/mysql-master-slave.svg?branch=master)](https://travis-ci.org/Onix-Systems/mysql-master-slave)
 
@@ -33,6 +33,10 @@ with master and slave MySQL servers.
 phpmyadmin is accessible by url: http://localhost:8080/
 
 ---
+
+### Project scheme
+
+![scheme.png](./scheme.png)
 
 ### Running tests
 
