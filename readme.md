@@ -38,6 +38,8 @@ phpmyadmin is accessible by url: http://localhost:8080/
 
 ![scheme.png](./scheme.png)
 
+---
+
 ### Running tests
 
 Tests items:
