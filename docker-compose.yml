@@ -104,14 +104,14 @@ services:
         max-size: "10M"
         max-file: "5"
 
-  miscelanious:
-    hostname: "miscelanious"
+  miscellaneous:
+    hostname: "miscellaneous"
     labels:
       description: "Is used for fixing user rights for data folders and running unit tests against infrastructure."
     build:
       context: ./
       dockerfile: "Dockerfile.mysql"
-    entrypoint: /entrypoint.sh
+    command: /configurator.sh
     depends_on:
       - master
       - slave
@@ -129,7 +129,7 @@ services:
       - PROXYSQL_DB_HOST=proxysql
       - PROXYSQL_DB_PORT=${PROXYSQL_DB_PORT:-6033}
     volumes:
-      - "./scripts/miscelanious.sh:/entrypoint.sh:ro"
+      - "./scripts/configurator.sh:/configurator.sh:ro"
       - "${DATA_FOLDER:-./data}:/data"
       - ./tests:/tests
 

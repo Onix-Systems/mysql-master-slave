@@ -12,4 +12,4 @@
     - docker-compose build
   script:
     - docker-compose up -d
-    - docker exec --tty -e TERM=xterm $(docker-compose ps -q miscelanious) /tests/run.sh
+    - docker-compose run --rm miscellaneous /tests/run.sh

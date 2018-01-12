@@ -80,8 +80,9 @@ test_04_proxysql_check_insert() {
     assert_equals "1" "${STDOUT}" "Value '${MESSAGE_VALUE}' can not be found on slave."
 }
 
-test_05_proxysql_check_select() {
-    # this function should find at least one match of the message value
+test_05_proxysql_check_select_balancing() {
+    # Insert unique record into slave table only and try find it by using proxysql access point.
+    # This function should find at least one match of the message value.
     RANDOM_RANGE=1000
     RANDOM_START=100
     MESSAGE_VALUE=$(date)

@@ -5,6 +5,7 @@ LABEL maintainer="devops@onix-systems.com"
 RUN apt-get update && \
     apt-get install -y \
       gettext-base \
+      git \
       netcat && \
     apt-get clean && \
     chown mysql:mysql /etc/mysql/conf.d/

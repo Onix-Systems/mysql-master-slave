@@ -30,18 +30,15 @@ set -e
 echo "Checking all requirements for running tests against this project."
 
 if [ "$(which git)" == "" ]; then
-    apt-get update > /dev/null
-    apt-get install -y \
-        git
+    apt-get update &> /dev/null
+    apt-get install -y git &> /dev/null
 fi
 
 if [ "$(which bash_unit)" == "" ]; then
 mkdir -p ${SOURCE_FOLDER}
-git clone https://github.com/pgrange/bash_unit.git ${SOURCE_FOLDER}
+git clone https://github.com/pgrange/bash_unit.git ${SOURCE_FOLDER} &> /dev/null
 ln -s ${SOURCE_FOLDER}/bash_unit /usr/sbin/bash_unit
 fi
 
-echo
-echo "Running tests"
 echo
 bash_unit tests.sh

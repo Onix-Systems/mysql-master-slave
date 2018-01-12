@@ -26,5 +26,3 @@ else
     echo "No changes."
 fi
 echo
-
-tailf /dev/null
