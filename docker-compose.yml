@@ -29,10 +29,11 @@ services:
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-password}
       - MYSQL_USER=${MYSQL_USER:-user}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-password}
+      - PROXYSQL_DB_PORT=${PROXYSQL_DB_PORT:-6033}
     volumes:
       - ./conf.d/proxysql.cnf.tmpl:/etc/proxysql.cnf.tmpl:ro
       - ./scripts/proxysql.sh:/entrypoint.sh:ro
-      - ./data/proxysql/:/var/lib/proxysql
+      - ${DATA_FOLDER:-./data}/proxysql/:/var/lib/proxysql
     restart: unless-stopped
     logging:
       driver: "json-file"
@@ -83,8 +84,6 @@ services:
       - MYSQL_USER=${MYSQL_USER:-user}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-password}
       - MASTER_DB_HOST=master
-      - PROXYSQL_DB_HOST=proxysql
-      - PROXYSQL_DB_PORT=${PROXYSQL_DB_PORT:-6033}
       - SLAVE_USER=${SLAVE_USER:-slave_user}
       - SLAVE_USER_PASSWORD=${SLAVE_PASSWORD:-slave_password}
       - CONFIG_FILE_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl
@@ -98,7 +97,6 @@ services:
       - "./scripts/monitor.sh:/docker-entrypoint-initdb.d/01-monitor.sh:ro"
       - "${DATA_FOLDER:-./data}/slave/data:/var/lib/mysql"
       - "${DATA_FOLDER:-./data}/slave/log:/var/log/mysql"
-      - ./tests:/tests
     restart: unless-stopped
     logging:
       driver: "json-file"
@@ -106,22 +104,34 @@ services:
         max-size: "10M"
         max-file: "5"
 
-  configurator:
-    hostname: "configurator"
+  miscelanious:
+    hostname: "miscelanious"
+    labels:
+      description: "Is used for fixing user rights for data folders and running unit tests against infrastructure."
     build:
       context: ./
       dockerfile: "Dockerfile.mysql"
-    command: /configurator.sh
+    entrypoint: /entrypoint.sh
     depends_on:
       - master
       - slave
+      - proxysql
     environment:
-      - MYSQL_USER=mysql
+      - USER=mysql
       - MASTER_DATA_FOLDER=/data/master
       - SLAVE_DATA_FOLDER=/data/slave
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-test}
+      - MYSQL_USER=${MYSQL_USER:-user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-password}
+      - MASTER_DB_HOST=master
+      - SLAVE_DB_HOST=slave
+      - PROXYSQL_DB_HOST=proxysql
+      - PROXYSQL_DB_PORT=${PROXYSQL_DB_PORT:-6033}
     volumes:
-      - "./scripts/configurator.sh:/configurator.sh:ro"
+      - "./scripts/miscelanious.sh:/entrypoint.sh:ro"
       - "${DATA_FOLDER:-./data}:/data"
+      - ./tests:/tests
 
   phpmyadmin:
     hostname: "phpmyadmin"

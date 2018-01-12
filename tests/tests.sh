@@ -8,7 +8,7 @@ if [ "$(basename $0)" != "bash_unit" ]; then
 fi
 echo "Done."
 
-if [ -z "${MYSQL_ROOT_PASSWORD}" ] || [ -z "${MYSQL_DATABASE}" ] || [ -z "${MASTER_DB_HOST}" ] ||
+if [ -z "${MYSQL_ROOT_PASSWORD}" ] || [ -z "${MYSQL_DATABASE}" ] || [ -z "${MASTER_DB_HOST}" ] || [ -z "${SLAVE_DB_HOST}" ] ||
    [ -z "${PROXYSQL_DB_HOST}" ] || [ -z "${PROXYSQL_DB_PORT}" ] || [ -z "${MYSQL_USER}" ] || [ -z "${MYSQL_PASSWORD}" ]; then
     echo "Error! Not enough input parameters."
     exit 1
@@ -16,7 +16,7 @@ fi
 
 export MYSQL_PWD=${MYSQL_ROOT_PASSWORD}
 MYSQL_TEST_TABLE=test_table
-SLAVE_DB_HOST=localhost
+SLAVE_DB_HOST=${SLAVE_DB_HOST:-localhost}
 DEFAULT_TIMEOUT=1
 
 CREATE_TABLE_QUERY="
@@ -27,7 +27,16 @@ CREATE_TABLE_QUERY="
   );
 "
 
-test_00_replication_create_table() {
+test_00_check_slave_status() {
+    STDOUT=$(mysql -h${SLAVE_DB_HOST} -e "show slave status \G" | grep Slave_IO_Running | sed -r "s/ //g" | cut -d ":" -f 2)
+    RTRN=$?
+    assert_equals "Yes" ${STDOUT} "Error checking Slave_IO_Running option."
+    STDOUT=$(mysql -h${SLAVE_DB_HOST} -e "show slave status \G" | grep Slave_SQL_Running | sed -r "s/ //g" | cut -d ":" -f 2)
+    RTRN=$?
+    assert_equals "Yes" ${STDOUT} "Error checking Slave_SQL_Running option."
+}
+
+test_01_replication_create_table() {
     STDOUT=$(mysql -h${MASTER_DB_HOST} ${MYSQL_DATABASE} -e "${CREATE_TABLE_QUERY}")
     RTRN=$?
     assert_equals 0 ${RTRN} "Error on creating test table on master host."
@@ -37,13 +46,13 @@ test_00_replication_create_table() {
     assert_equals "${MYSQL_TEST_TABLE}" "${STDOUT}" "Can not be found ${MYSQL_TEST_TABLE} on slave."
 }
 
-test_01_replication_compare_tables_names() {
+test_02_replication_compare_tables_names() {
     MASTER_TABLES_LIST=$(mysql -sN -h${MASTER_DB_HOST} ${MYSQL_DATABASE} -e "show tables;" | tr "\n" ",")
     SLAVE_TABLES_LIST=$(mysql -sN -h${SLAVE_DB_HOST} ${MYSQL_DATABASE} -e "show tables;" | tr "\n" ",")
     assert_equals "${MASTER_TABLES_LIST}" "${SLAVE_TABLES_LIST}" "Lists of tables are not equal on master and slave servers."
 }
 
-test_02_replication_insert() {
+test_03_replication_insert() {
     MESSAGE_VALUE=$(date)
     INSERT_QUERY="INSERT INTO ${MYSQL_TEST_TABLE} (message) VALUES ('${MESSAGE_VALUE}');"
     STDOUT=$(mysql -h${MASTER_DB_HOST} ${MYSQL_DATABASE} -e "${INSERT_QUERY}")
@@ -56,7 +65,7 @@ test_02_replication_insert() {
 }
 
 
-test_03_proxysql_check_insert() {
+test_04_proxysql_check_insert() {
     MESSAGE_VALUE=$(date)
     STDOUT=$(MYSQL_PWD=${MYSQL_PASSWORD} mysql -sN -h${PROXYSQL_DB_HOST} -P${PROXYSQL_DB_PORT} -u ${MYSQL_USER} ${MYSQL_DATABASE} -e "INSERT INTO ${MYSQL_TEST_TABLE} (message) VALUES ('${MESSAGE_VALUE}');")
     RTRN=$?
@@ -71,7 +80,7 @@ test_03_proxysql_check_insert() {
     assert_equals "1" "${STDOUT}" "Value '${MESSAGE_VALUE}' can not be found on slave."
 }
 
-test_04_proxysql_check_select() {
+test_05_proxysql_check_select() {
     # this function should find at least one match of the message value
     RANDOM_RANGE=1000
     RANDOM_START=100
@@ -94,7 +103,7 @@ test_04_proxysql_check_select() {
     assert_equals "0" "$?" "Matched count is not enough."
 }
 
-test_05_replication_drop_table() {
+test_06_replication_drop_table() {
     STDOUT=$(mysql -h${MASTER_DB_HOST} ${MYSQL_DATABASE} -e "DROP TABLE \`${MYSQL_TEST_TABLE}\`;")
     RTRN=$?
     assert_equals 0 ${RTRN} "Error while deleting test table on master host."

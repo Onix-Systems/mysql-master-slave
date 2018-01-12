@@ -5,12 +5,14 @@ SOURCE_FOLDER=/bash_unit
 
 cd $(dirname $0)
 
-printf "Waiting for MySQL on localhost will be ready"
+SLAVE_DB_HOST=${SLAVE_DB_HOST:-localhost}
+
+printf "Waiting for MySQL on ${SLAVE_DB_HOST} will be ready"
 IS_READY=false
 I=0
 set +e
 while [ $IS_READY == false ]; do
-    nc -z -w 1 localhost 3306
+    nc -z -w 1 ${SLAVE_DB_HOST} 3306
     [ $? == 0 ] && IS_READY=true
     printf "."
     sleep 1
