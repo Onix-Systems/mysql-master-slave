@@ -2,6 +2,7 @@
   sudo: enabled
   env:
     - DOCKER_COMPOSE_VERSION: "1.18.0"
+    - PROXY_BIND_ADDRESS: "127.0.0.1:6033"
   services:
     - docker
   before_install:
