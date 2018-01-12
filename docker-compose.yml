@@ -16,7 +16,7 @@ services:
       - master
       - slave
     ports:
-      - "${PROXY_BIND_ADDRESS:-3306}:6033"
+      - "${PROXY_BIND_ADDRESS:-3306}:${PROXYSQL_DB_PORT:-6033}"
     environment:
       - MASTER_DB_HOST=master
       - SLAVE_DB_HOST=slave
@@ -83,6 +83,8 @@ services:
       - MYSQL_USER=${MYSQL_USER:-user}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-password}
       - MASTER_DB_HOST=master
+      - PROXYSQL_DB_HOST=proxysql
+      - PROXYSQL_DB_PORT=${PROXYSQL_DB_PORT:-6033}
       - SLAVE_USER=${SLAVE_USER:-slave_user}
       - SLAVE_USER_PASSWORD=${SLAVE_PASSWORD:-slave_password}
       - CONFIG_FILE_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl

@@ -3,13 +3,14 @@
 printf "Checking environment. "
 if [ "$(basename $0)" != "bash_unit" ]; then
     echo
-    echo "This scripts must be launched inside the bash_unit tool only."
+    echo "Error! This scripts must be launched inside the bash_unit tool only."
     exit 1
 fi
 echo "Done."
 
-if [ -z "${MYSQL_ROOT_PASSWORD}" ] || [ -z "${MYSQL_DATABASE}" ] || [ -z "${MASTER_DB_HOST}" ]; then
-    echo "Not enough input parameters."
+if [ -z "${MYSQL_ROOT_PASSWORD}" ] || [ -z "${MYSQL_DATABASE}" ] || [ -z "${MASTER_DB_HOST}" ] ||
+   [ -z "${PROXYSQL_DB_HOST}" ] || [ -z "${PROXYSQL_DB_PORT}" ] || [ -z "${MYSQL_USER}" ] || [ -z "${MYSQL_PASSWORD}" ]; then
+    echo "Error! Not enough input parameters."
     exit 1
 fi
 
@@ -54,7 +55,46 @@ test_02_replication_insert() {
     assert_equals "1" "${STDOUT}" "Value '${MESSAGE_VALUE}' can not be found on slave."
 }
 
-test_03_replication_drop_table() {
+
+test_03_proxysql_check_insert() {
+    MESSAGE_VALUE=$(date)
+    STDOUT=$(MYSQL_PWD=${MYSQL_PASSWORD} mysql -sN -h${PROXYSQL_DB_HOST} -P${PROXYSQL_DB_PORT} -u ${MYSQL_USER} ${MYSQL_DATABASE} -e "INSERT INTO ${MYSQL_TEST_TABLE} (message) VALUES ('${MESSAGE_VALUE}');")
+    RTRN=$?
+    assert_equals 0 ${RTRN} "Error on inserting test record into test table through the PROXYSQL service."
+    sleep ${DEFAULT_TIMEOUT}
+    STDOUT=$(mysql -sN -h${MASTER_DB_HOST} ${MYSQL_DATABASE} -e "SELECT count(*) FROM ${MYSQL_TEST_TABLE} WHERE message='${MESSAGE_VALUE}';")
+    RTRN=$?
+    assert_equals "1" "${STDOUT}" "Value '${MESSAGE_VALUE}' can not be found on master."
+    sleep ${DEFAULT_TIMEOUT}
+    STDOUT=$(mysql -sN -h${SLAVE_DB_HOST} ${MYSQL_DATABASE} -e "SELECT count(*) FROM ${MYSQL_TEST_TABLE} WHERE message='${MESSAGE_VALUE}';")
+    RTRN=$?
+    assert_equals "1" "${STDOUT}" "Value '${MESSAGE_VALUE}' can not be found on slave."
+}
+
+test_04_proxysql_check_select() {
+    # this function should find at least one match of the message value
+    RANDOM_RANGE=1000
+    RANDOM_START=100
+    MESSAGE_VALUE=$(date)
+    RECORD_ID=$(( (RANDOM % ${RANDOM_RANGE}) + ${RANDOM_START} ))
+    # Inserting value only to slave DB for further checking the select by proxysql
+    STDOUT=$(MYSQL_PWD=${MYSQL_PASSWORD} mysql -sN -h${SLAVE_DB_HOST} -u ${MYSQL_USER} ${MYSQL_DATABASE} -e "INSERT INTO ${MYSQL_TEST_TABLE} (id,message) VALUES (${RECORD_ID}, '${MESSAGE_VALUE}');")
+    RTRN=$?
+    assert_equals 0 ${RTRN} "Error on inserting test record into test table to slave DB directly."
+    MAX_ATTEMPTS=10
+    ATTEMPT=0
+    MATCHED_COUNT=0
+    for ATTEMPT in $(seq 1 ${MAX_ATTEMPTS}); do
+        STDOUT=$(MYSQL_PWD=${MYSQL_PASSWORD} mysql -sN -h${PROXYSQL_DB_HOST} -P${PROXYSQL_DB_PORT} -u${MYSQL_USER} ${MYSQL_DATABASE} -e "SELECT message FROM ${MYSQL_TEST_TABLE} WHERE id='${RECORD_ID}';")
+        RTRN=$?
+        if [ "${STDOUT}" == "${MESSAGE_VALUE}" ]; then let MATCHED_COUNT=${MATCHED_COUNT}+1; fi
+    done
+    printf "Was matched ${MATCHED_COUNT}/${MAX_ATTEMPTS} times. "
+    test ${MATCHED_COUNT} -ge 1
+    assert_equals "0" "$?" "Matched count is not enough."
+}
+
+test_05_replication_drop_table() {
     STDOUT=$(mysql -h${MASTER_DB_HOST} ${MYSQL_DATABASE} -e "DROP TABLE \`${MYSQL_TEST_TABLE}\`;")
     RTRN=$?
     assert_equals 0 ${RTRN} "Error while deleting test table on master host."
