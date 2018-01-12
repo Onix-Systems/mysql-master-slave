@@ -57,16 +57,16 @@ mysql -uroot -h${MASTER_DB_HOST} ${MYSQL_DATABASE} -e "UNLOCK TABLES; SHOW MASTE
 mysql -uroot ${MYSQL_DATABASE} < /tmp/${MYSQL_DATABASE}.sql
 mysql -uroot -e "CHANGE MASTER TO MASTER_HOST='${MASTER_DB_HOST}',MASTER_USER='${SLAVE_USER}', MASTER_PASSWORD='${SLAVE_USER_PASSWORD}', MASTER_LOG_FILE='${LOG_FILE}', MASTER_LOG_POS=${POSITION};"
 
-if [ -z "${CUSTOM_CONF_TEMPLATE}" ] || [ -z "${CUSTOM_CONF}" ]; then
+if [ -z "${CONFIG_FILE_TEMPLATE}" ] || [ -z "${CONFIG_FILE}" ]; then
     echo "Not enough input parameters."
     exit 1
 fi
 
-if [ ! -e "${CUSTOM_CONF_TEMPLATE}" ]; then
+if [ ! -f "${CONFIG_FILE_TEMPLATE}" ]; then
     echo "Could not be found template for custom config."
     exit 1
 fi
 
 printf "Generating custom config from template. "
-cat ${CUSTOM_CONF_TEMPLATE} | envsubst > ${CUSTOM_CONF}
+cat ${CONFIG_FILE_TEMPLATE} | envsubst > ${CONFIG_FILE}
 echo "Done."

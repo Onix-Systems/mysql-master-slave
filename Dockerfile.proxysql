@@ -1,0 +1,27 @@
+FROM ubuntu:xenial
+
+LABEL maintainer="devops@onix-systems.com"
+
+#
+# http://www.proxysql.com/
+# https://github.com/sysown/proxysql/wiki
+#
+
+ENV CONFIG_FILE=/etc/proxysql.cnf \
+    VERSION=1.4.4
+
+RUN apt-get update && \
+    apt-get install -y \
+        curl \
+        gettext-base \
+        lsb-release \
+        mysql-client && \
+    curl -sL http://repo.proxysql.com/ProxySQL/repo_pub_key | apt-key add - && \
+    echo "deb http://repo.proxysql.com/ProxySQL/proxysql-1.4.x/$(lsb_release -sc)/ ./" | tee /etc/apt/sources.list.d/proxysql.list && \
+    apt-get update && \
+    apt-get install -y \
+        proxysql=${VERSION} && \
+    apt-get clean
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["proxysql", "-c", "/etc/proxysql.cnf", "-f"]

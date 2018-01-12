@@ -5,12 +5,14 @@ SOURCE_FOLDER=/bash_unit
 
 cd $(dirname $0)
 
-printf "Waiting for MySQL on localhost will be ready"
+SLAVE_DB_HOST=${SLAVE_DB_HOST:-localhost}
+
+printf "Waiting for MySQL on ${SLAVE_DB_HOST} will be ready"
 IS_READY=false
 I=0
 set +e
 while [ $IS_READY == false ]; do
-    nc -z -w 1 localhost 3306
+    nc -z -w 1 ${SLAVE_DB_HOST} 3306
     [ $? == 0 ] && IS_READY=true
     printf "."
     sleep 1
@@ -28,18 +30,15 @@ set -e
 echo "Checking all requirements for running tests against this project."
 
 if [ "$(which git)" == "" ]; then
-    apt-get update > /dev/null
-    apt-get install -y \
-        git
+    apt-get update &> /dev/null
+    apt-get install -y git &> /dev/null
 fi
 
 if [ "$(which bash_unit)" == "" ]; then
 mkdir -p ${SOURCE_FOLDER}
-git clone https://github.com/pgrange/bash_unit.git ${SOURCE_FOLDER}
+git clone https://github.com/pgrange/bash_unit.git ${SOURCE_FOLDER} &> /dev/null
 ln -s ${SOURCE_FOLDER}/bash_unit /usr/sbin/bash_unit
 fi
 
-echo
-echo "Running tests"
 echo
 bash_unit tests.sh
