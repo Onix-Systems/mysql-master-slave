@@ -1,10 +1,12 @@
 ---
   sudo: enabled
+  environment:
+    DOCKER_COMPOSE_VERSION: "1.18.0"
   services:
     - docker
   before_install:
     - sudo apt-get install -y curl
-    - sudo curl -L https://github.com/docker/compose/releases/download/1.17.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+    - sudo curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     - sudo chmod +x /usr/local/bin/docker-compose
     - docker-compose stop -t 0 && rm -f ./data/
     - docker-compose build
