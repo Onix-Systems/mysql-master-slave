@@ -1,11 +1,17 @@
 ## MySQL master/slave example + using ProxySQL service as MySQL Balancer
 
-Master branch build status: [![Build Status](https://travis-ci.org/Onix-Systems/mysql-master-slave.svg?branch=master)](https://travis-ci.org/Onix-Systems/mysql-master-slave)
+Build status: 
+
+[![Build Status](https://travis-ci.org/Onix-Systems/mysql-master-slave.svg?branch=master)](https://travis-ci.org/Onix-Systems/mysql-master-slave)
+
+---
 
 ### Requirements
 
 1. docker-engine
 1. docker-compose (that supports docker-compose.yml file of version 3)
+
+---
 
 ### Usage
 ```
@@ -25,6 +31,8 @@ After successfully deployment, user can open phpmyadmin to check connectivity
 with master and slave MySQL servers.
 
 phpmyadmin is accessible by url: http://localhost:8080/
+
+---
 
 ### Running tests
 
