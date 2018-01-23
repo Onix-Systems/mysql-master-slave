@@ -1,6 +1,8 @@
 FROM mysql:8
 
 LABEL maintainer="devops@onix-systems.com"
+ENV PRE_INIT_SCRIPT=db_pre_init.sh \
+    SCRIPTS_FOLDER=/usr/local/bin
 
 RUN apt-get update && \
     apt-get install -y \
@@ -9,5 +11,9 @@ RUN apt-get update && \
       netcat && \
     apt-get clean && \
     chown mysql:mysql /etc/mysql/conf.d/
+
+COPY scripts/${PRE_INIT_SCRIPT} ${SCRIPTS_FOLDER}
+RUN chmod +x ${SCRIPTS_FOLDER}/${PRE_INIT_SCRIPT} && \
+    sed -i "0,/exec/s//${PRE_INIT_SCRIPT} \n\texec/" /usr/local/bin/docker-entrypoint.sh
 
 CMD [ "--character-set-server=utf8", "--collation-server=utf8_general_ci" ]
