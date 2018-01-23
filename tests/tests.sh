@@ -18,7 +18,7 @@ export MYSQL_PWD=${MYSQL_ROOT_PASSWORD}
 MYSQL_TEST_TABLE=test_table
 SLAVE_DB_HOST=${SLAVE_DB_HOST:-localhost}
 DEFAULT_TIMEOUT=1
-
+MAX_RETRY=10
 CREATE_TABLE_QUERY="
   CREATE TABLE IF NOT EXISTS \`${MYSQL_TEST_TABLE}\` (
       id INT NOT NULL AUTO_INCREMENT,
@@ -58,15 +58,22 @@ test_03_replication_insert() {
     STDOUT=$(mysql -h${MASTER_DB_HOST} ${MYSQL_DATABASE} -e "${INSERT_QUERY}")
     RTRN=$?
     assert_equals 0 ${RTRN} "Error on inserting test record into test table on master host."
-    sleep ${DEFAULT_TIMEOUT}
-    STDOUT=$(mysql -sN -h${SLAVE_DB_HOST} ${MYSQL_DATABASE} -e "SELECT count(*) FROM ${MYSQL_TEST_TABLE} WHERE message='${MESSAGE_VALUE}';")
-    RTRN=$?
+    # sleep ${DEFAULT_TIMEOUT}
+    I=0
+    STDOUT="0"
+    START=$(($(date +%s%N)/1000000))
+    while [ ${STDOUT} -eq 0 ] && [ $I -le ${MAX_RETRY} ]; do
+        STDOUT=$(mysql -sN -h${SLAVE_DB_HOST} ${MYSQL_DATABASE} -e "SELECT count(*) FROM ${MYSQL_TEST_TABLE} WHERE message='${MESSAGE_VALUE}';")
+        RTRN=$?
+        let I=${I}+1
+    done
+    let REPLICATION_TIME=$(($(date +%s%N)/1000000))-${START}
     assert_equals "1" "${STDOUT}" "Value '${MESSAGE_VALUE}' can not be found on slave."
+    printf "Attempts ${I}/${MAX_RETRY}. Was replicated in ${REPLICATION_TIME} miliseconds. "
 }
 
-
 test_04_proxysql_check_insert() {
-    MESSAGE_VALUE=$(date)
+    MESSAGE_VALUE="$(date +%s)"
     STDOUT=$(MYSQL_PWD=${MYSQL_PASSWORD} mysql -sN -h${PROXYSQL_DB_HOST} -P${PROXYSQL_DB_PORT} -u ${MYSQL_USER} ${MYSQL_DATABASE} -e "INSERT INTO ${MYSQL_TEST_TABLE} (message) VALUES ('${MESSAGE_VALUE}');")
     RTRN=$?
     assert_equals 0 ${RTRN} "Error on inserting test record into test table through the PROXYSQL service."
