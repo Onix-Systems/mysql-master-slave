@@ -58,7 +58,6 @@ test_03_replication_insert() {
     STDOUT=$(mysql -h${MASTER_DB_HOST} ${MYSQL_DATABASE} -e "${INSERT_QUERY}")
     RTRN=$?
     assert_equals 0 ${RTRN} "Error on inserting test record into test table on master host."
-    # sleep ${DEFAULT_TIMEOUT}
     I=0
     STDOUT="0"
     START=$(($(date +%s%N)/1000000))
