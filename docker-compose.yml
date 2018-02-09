@@ -92,7 +92,6 @@ services:
       - MONITOR_PASSWORD=${MONITOR_PASSWORD:-monitor}
     volumes:
       - "./conf.d/slave.cnf.tmpl:/etc/mysql/conf.d/custom.cnf.tmpl:ro"
-      - "./conf.d/00-slave.cnf:/etc/mysql/conf.d/00-custom.cnf:ro"
       - "./scripts/slave.sh:/docker-entrypoint-initdb.d/00-slave.sh:ro"
       - "./scripts/monitor.sh:/docker-entrypoint-initdb.d/01-monitor.sh:ro"
       - "${DATA_FOLDER:-./data}/slave/data:/var/lib/mysql"

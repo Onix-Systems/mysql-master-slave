@@ -67,6 +67,10 @@ if [ ! -f "${CONFIG_FILE_TEMPLATE}" ]; then
     exit 1
 fi
 
+# Genereting unique ID for current instance
+export SERVER_ID=$(cat /proc/sys/kernel/random/uuid | tr -dc '1-9' | cut -c1-8)
+echo "Current SERVER_ID is: ${SERVER_ID}"
+#
 printf "Generating custom config from template. "
 cat ${CONFIG_FILE_TEMPLATE} | envsubst > ${CONFIG_FILE}
 echo "Done."
