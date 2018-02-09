@@ -119,3 +119,32 @@ test_06_replication_drop_table() {
     RTRN=$?
     assert_equals "" "${STDOUT}" "Table ${MYSQL_TEST_TABLE} is still present on slave."
 }
+
+test_07_replication_multiple_databases() {
+    DATABASE_NAME="multiple$(date +%s)"
+    TABLE_NAME="replicated"
+    MESSAGE_VALUE=$(date +%s)
+    STDOUT=$(mysql -h${MASTER_DB_HOST} -e " \
+        CREATE DATABASE \`${DATABASE_NAME}\`; \
+        USE ${DATABASE_NAME}; \
+        CREATE TABLE \`${TABLE_NAME}\` ( \
+          id INT NOT NULL AUTO_INCREMENT, \
+          message VARCHAR(50) NOT NULL,
+          PRIMARY KEY (id)\
+        ); \
+        INSERT INTO \`${TABLE_NAME}\` (message) VALUES ('${MESSAGE_VALUE}');
+    ")
+    RTRN=$?
+    assert_equals 0 ${RTRN} "Error occured while initializing ${DATABASE_NAME} database."
+    # Trying to get ${MESSAGE_VALUE} from slave DB
+    sleep ${DEFAULT_TIMEOUT}
+    STDOUT=$(mysql -sN -h${SLAVE_DB_HOST} ${DATABASE_NAME} -e "SELECT count(*) FROM ${TABLE_NAME} WHERE message='${MESSAGE_VALUE}';")
+    RTRN=$?
+    assert_equals "1" "${STDOUT}" "Could not find record with message [ ${MESSAGE_VALUE} ] in table [ ${DATABASE_NAME}.${TABLE_NAME} ] on slave."
+    STDOUT=$(mysql -h${MASTER_DB_HOST} -e "DROP DATABASE \`${DATABASE_NAME}\`";)
+    assert "test $? == 0" "Could not drop database ${DATABASE_NAME}."
+    sleep ${DEFAULT_TIMEOUT}
+    # Checking that database ${DATABASE_NAME} was dropped on slave also.
+    STDOUT=$(mysql -sN -h${SLAVE_DB_HOST} -e "SHOW DATABASES LIKE '${DATABASE_NAME}';")
+    assert "test '${STDOUT}' == ''" "On slave database ${DATABASE_NAME} was not dropped after master cleanup."
+}
