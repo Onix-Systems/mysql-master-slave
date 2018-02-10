@@ -1,4 +1,7 @@
-FROM mysql:8
+ARG MYSQL_IMAGE=mysql
+ARG MYSQL_VERSION=8
+
+FROM ${MYSQL_IMAGE}:${MYSQL_VERSION}
 
 LABEL maintainer="devops@onix-systems.com"
 ENV PRE_INIT_SCRIPT=db_pre_init.sh \

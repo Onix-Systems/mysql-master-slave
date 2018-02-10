@@ -46,6 +46,9 @@ services:
     build:
       context: ./
       dockerfile: "Dockerfile.mysql"
+      args:
+        - MYSQL_IMAGE=${MYSQL_IMAGE:-mysql}
+        - MYSQL_VERSION=${MYSQL_VERSION:-8}
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-test}
@@ -74,6 +77,9 @@ services:
     build:
       context: ./
       dockerfile: "Dockerfile.mysql"
+      args:
+        - MYSQL_IMAGE=${MYSQL_IMAGE:-mysql}
+        - MYSQL_VERSION=${MYSQL_VERSION:-8}
     depends_on:
       - master
     links:
