@@ -13,10 +13,6 @@ RUN apt-get update && \
       git \
       netcat && \
     apt-get clean && \
-    chown mysql:mysql /etc/mysql/conf.d/
-
-COPY scripts/${PRE_INIT_SCRIPT} ${SCRIPTS_FOLDER}
-RUN chmod +x ${SCRIPTS_FOLDER}/${PRE_INIT_SCRIPT} && \
-    sed -i "0,/exec/s//${PRE_INIT_SCRIPT} \n\texec/" /usr/local/bin/docker-entrypoint.sh
+    sed -i "0,/exec/s//db_pre_init.sh \n\texec/" /usr/local/bin/docker-entrypoint.sh
 
 CMD [ "--character-set-server=utf8", "--collation-server=utf8_general_ci" ]

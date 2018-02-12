@@ -56,21 +56,3 @@ mysql -uroot -h${MASTER_DB_HOST} ${MYSQL_DATABASE} -e "UNLOCK TABLES; SHOW MASTE
 # Working on slave node
 mysql -uroot ${MYSQL_DATABASE} < /tmp/${MYSQL_DATABASE}.sql
 mysql -uroot -e "CHANGE MASTER TO MASTER_HOST='${MASTER_DB_HOST}',MASTER_USER='${SLAVE_USER}', MASTER_PASSWORD='${SLAVE_USER_PASSWORD}', MASTER_LOG_FILE='${LOG_FILE}', MASTER_LOG_POS=${POSITION};"
-
-if [ -z "${CONFIG_FILE_TEMPLATE}" ] || [ -z "${CONFIG_FILE}" ]; then
-    echo "Not enough input parameters."
-    exit 1
-fi
-
-if [ ! -f "${CONFIG_FILE_TEMPLATE}" ]; then
-    echo "Could not be found template for custom config."
-    exit 1
-fi
-
-# Genereting unique ID for current instance
-export SERVER_ID=$(cat /proc/sys/kernel/random/uuid | tr -dc '1-9' | cut -c1-8)
-echo "Current SERVER_ID is: ${SERVER_ID}"
-#
-printf "Generating custom config from template. "
-cat ${CONFIG_FILE_TEMPLATE} | envsubst > ${CONFIG_FILE}
-echo "Done."

@@ -31,7 +31,7 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-password}
       - PROXYSQL_DB_PORT=${PROXYSQL_DB_PORT:-6033}
     volumes:
-      - ./conf.d/proxysql.cnf.tmpl:/etc/proxysql.cnf.tmpl:ro
+      - ./config/proxysql.cnf.tmpl:/etc/proxysql.cnf.tmpl:ro
       - ./scripts/proxysql.sh:/entrypoint.sh:ro
       - ${DATA_FOLDER:-./data}/proxysql/:/var/lib/proxysql
     restart: unless-stopped
@@ -54,17 +54,19 @@ services:
       - MYSQL_DATABASE=${MYSQL_DATABASE:-test}
       - MYSQL_USER=${MYSQL_USER:-user}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-password}
-      - CONFIG_FILE_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl
-      - CONFIG_FILE=/etc/mysql/conf.d/custom.cnf
+      - CONFIG_FILE_TEMPLATE=/etc/mysql/custom.cnf.tmpl
+      - CONFIG_FILE=/etc/mysql/conf.d/00-master.cnf
       - MONITOR_USERNAME=${MONITOR_USERNAME:-monitor}
       - MONITOR_PASSWORD=${MONITOR_PASSWORD:-monitor}
     volumes:
-      - "./conf.d/master.cnf.tmpl:/etc/mysql/conf.d/custom.cnf.tmpl:ro"
+      - "./config/master.cnf.tmpl:/etc/mysql/custom.cnf.tmpl:ro"
       - "./db_scheme.sql:/docker-entrypoint-initdb.d/db_scheme.sql:ro"
       - "./scripts/master.sh:/docker-entrypoint-initdb.d/00-master.sh:ro"
       - "./scripts/monitor.sh:/docker-entrypoint-initdb.d/01-monitor.sh:ro"
+      - "./scripts/db_pre_init.sh:/usr/local/bin/db_pre_init.sh:ro"
       - "${DATA_FOLDER:-./data}/master/data:/var/lib/mysql"
       - "${DATA_FOLDER:-./data}/master/log:/var/log/mysql"
+      - "${CONFIG_FOLDER:-./conf.d}/master/:/etc/mysql/conf.d"
     restart: unless-stopped
     logging:
       driver: "json-file"
@@ -92,16 +94,18 @@ services:
       - MASTER_DB_HOST=master
       - SLAVE_USER=${SLAVE_USER:-slave_user}
       - SLAVE_USER_PASSWORD=${SLAVE_PASSWORD:-slave_password}
-      - CONFIG_FILE_TEMPLATE=/etc/mysql/conf.d/custom.cnf.tmpl
-      - CONFIG_FILE=/etc/mysql/conf.d/01-custom.cnf
+      - CONFIG_FILE_TEMPLATE=/etc/mysql/custom.cnf.tmpl
+      - CONFIG_FILE=/etc/mysql/conf.d/00-slave.cnf
       - MONITOR_USERNAME=${MONITOR_USERNAME:-monitor}
       - MONITOR_PASSWORD=${MONITOR_PASSWORD:-monitor}
     volumes:
-      - "./conf.d/slave.cnf.tmpl:/etc/mysql/conf.d/custom.cnf.tmpl:ro"
+      - "./config/slave.cnf.tmpl:/etc/mysql/custom.cnf.tmpl:ro"
       - "./scripts/slave.sh:/docker-entrypoint-initdb.d/00-slave.sh:ro"
       - "./scripts/monitor.sh:/docker-entrypoint-initdb.d/01-monitor.sh:ro"
+      - "./scripts/db_pre_init.sh:/usr/local/bin/db_pre_init.sh:ro"
       - "${DATA_FOLDER:-./data}/slave/data:/var/lib/mysql"
       - "${DATA_FOLDER:-./data}/slave/log:/var/log/mysql"
+      - "${CONFIG_FOLDER:-./conf.d}/slave/:/etc/mysql/conf.d"
     restart: unless-stopped
     logging:
       driver: "json-file"

@@ -72,3 +72,11 @@ Running test_05_proxysql_check_select_balancing... Was matched 7/10 times. SUCCE
 Running test_06_replication_drop_table... SUCCESS
 
 ```
+
+### Custom configuration
+
+It is possible to enable custom mysql configuration for each type of nodes.
+Locate custom configuration files in special folder:
+
+1. `./conf.d/master` - for master nodes
+1. `./conf.d/slave` - for slave nodes
