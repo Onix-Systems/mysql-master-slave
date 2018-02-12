@@ -6,7 +6,7 @@ if [ ! -z "MYSQL_ROOT_PASSWORD" ] && [ ! -e "${MYSQL_CLIENT_CONFIG_FILE}" ]; the
     echo "Creating ${MYSQL_CLIENT_CONFIG_FILE} file..."
     cat << EOF > ${MYSQL_CLIENT_CONFIG_FILE}
 [client]
-user=root
+user=${USER}
 password=${MYSQL_ROOT_PASSWORD}
 EOF
 fi
