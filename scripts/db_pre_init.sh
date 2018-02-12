@@ -1,10 +1,10 @@
 #!/bin/bash
 
-CONFIG_FILE=${HOME}/.my.cnf
+MYSQL_CLIENT_CONFIG_FILE=${HOME}/.my.cnf
 
-if [ ! -z "MYSQL_ROOT_PASSWORD" ] && [ ! -e "${CONFIG_FILE}" ]; then
-    echo "Creating ${HOME}/.my.cnf file..."
-    cat << EOF > ${CONFIG_FILE}
+if [ ! -z "MYSQL_ROOT_PASSWORD" ] && [ ! -e "${MYSQL_CLIENT_CONFIG_FILE}" ]; then
+    echo "Creating ${MYSQL_CLIENT_CONFIG_FILE} file..."
+    cat << EOF > ${MYSQL_CLIENT_CONFIG_FILE}
 [client]
 user=root
 password=${MYSQL_ROOT_PASSWORD}

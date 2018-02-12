@@ -1,3 +1,4 @@
+scripts/docker-entrypoint-initdb.d/master/*.sql
 conf.d/
 data/
 .env

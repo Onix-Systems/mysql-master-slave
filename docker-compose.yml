@@ -60,9 +60,7 @@ services:
       - MONITOR_PASSWORD=${MONITOR_PASSWORD:-monitor}
     volumes:
       - "./config/master.cnf.tmpl:/etc/mysql/custom.cnf.tmpl:ro"
-      - "./db_scheme.sql:/docker-entrypoint-initdb.d/db_scheme.sql:ro"
-      - "./scripts/master.sh:/docker-entrypoint-initdb.d/00-master.sh:ro"
-      - "./scripts/monitor.sh:/docker-entrypoint-initdb.d/01-monitor.sh:ro"
+      - "./scripts/docker-entrypoint-initdb.d/master:/docker-entrypoint-initdb.d:ro"
       - "./scripts/db_pre_init.sh:/usr/local/bin/db_pre_init.sh:ro"
       - "${DATA_FOLDER:-./data}/master/data:/var/lib/mysql"
       - "${DATA_FOLDER:-./data}/master/log:/var/log/mysql"
@@ -88,7 +86,6 @@ services:
       - master
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
-      - MYSQL_DATABASE=${MYSQL_DATABASE:-test}
       - MYSQL_USER=${MYSQL_USER:-user}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-password}
       - MASTER_DB_HOST=master
@@ -100,8 +97,7 @@ services:
       - MONITOR_PASSWORD=${MONITOR_PASSWORD:-monitor}
     volumes:
       - "./config/slave.cnf.tmpl:/etc/mysql/custom.cnf.tmpl:ro"
-      - "./scripts/slave.sh:/docker-entrypoint-initdb.d/00-slave.sh:ro"
-      - "./scripts/monitor.sh:/docker-entrypoint-initdb.d/01-monitor.sh:ro"
+      - "./scripts/docker-entrypoint-initdb.d/slave:/docker-entrypoint-initdb.d:ro"
       - "./scripts/db_pre_init.sh:/usr/local/bin/db_pre_init.sh:ro"
       - "${DATA_FOLDER:-./data}/slave/data:/var/lib/mysql"
       - "${DATA_FOLDER:-./data}/slave/log:/var/log/mysql"

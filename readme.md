@@ -80,3 +80,7 @@ Locate custom configuration files in special folder:
 
 1. `./conf.d/master` - for master nodes
 1. `./conf.d/slave` - for slave nodes
+
+Also if it is require to create custom DB schemes, it is possible to locate them
+by path: `./scripts/docker-entrypoint-initdb.d/master/custom.sql`. It can be any file,
+with SQL code inside but it has to have `.sql` extension.
