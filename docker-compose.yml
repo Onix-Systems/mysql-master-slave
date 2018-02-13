@@ -63,7 +63,6 @@ services:
       - "./scripts/docker-entrypoint-initdb.d/master:/docker-entrypoint-initdb.d:ro"
       - "./scripts/db_pre_init.sh:/usr/local/bin/db_pre_init.sh:ro"
       - "${DATA_FOLDER:-./data}/master/data:/var/lib/mysql"
-      - "${DATA_FOLDER:-./data}/master/log:/var/log/mysql"
       - "${CONFIG_FOLDER:-./conf.d}/master/:/etc/mysql/conf.d"
     restart: unless-stopped
     logging:
@@ -100,7 +99,6 @@ services:
       - "./scripts/docker-entrypoint-initdb.d/slave:/docker-entrypoint-initdb.d:ro"
       - "./scripts/db_pre_init.sh:/usr/local/bin/db_pre_init.sh:ro"
       - "${DATA_FOLDER:-./data}/slave/data:/var/lib/mysql"
-      - "${DATA_FOLDER:-./data}/slave/log:/var/log/mysql"
       - "${CONFIG_FOLDER:-./conf.d}/slave/:/etc/mysql/conf.d"
     restart: unless-stopped
     logging:

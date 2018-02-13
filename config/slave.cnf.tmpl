@@ -1,4 +1,4 @@
 [mysqld]
 server-id = ${SERVER_ID}
 log_bin = /var/log/mysql/mysql-bin.log
-binlog_expire_logs_seconds = 300
+log_bin_trust_function_creators = 1;

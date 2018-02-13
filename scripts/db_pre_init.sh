@@ -6,7 +6,7 @@ if [ ! -z "MYSQL_ROOT_PASSWORD" ] && [ ! -e "${MYSQL_CLIENT_CONFIG_FILE}" ]; the
     echo "Creating ${MYSQL_CLIENT_CONFIG_FILE} file..."
     cat << EOF > ${MYSQL_CLIENT_CONFIG_FILE}
 [client]
-user=${USER}
+user=root
 password=${MYSQL_ROOT_PASSWORD}
 EOF
 fi
@@ -21,7 +21,7 @@ if [ ! -f "${CONFIG_FILE_TEMPLATE}" ]; then
     exit 1
 fi
 
-# Genereting unique ID for current instance
+# Generating unique ID for current instance
 export SERVER_ID=$(cat /proc/sys/kernel/random/uuid | tr -dc '1-9' | cut -c1-8)
 echo "Current SERVER_ID is: ${SERVER_ID}"
 #
